@@ -1,0 +1,35 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app-aws-ingress
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: k8s-tutorial.mamezou-tech.com
+    # 自己署名の証明書Issuerを指定
+    cert-manager.io/issuer: "selfsigning-issuer"
+spec:
+  ingressClassName: nginx
+  # IngressのTLS設定
+  tls:
+    - hosts:
+        - k8s-tutorial.mamezou-tech.com
+      secretName: selfsigning-cert
+  rules:
+    - host: k8s-tutorial.mamezou-tech.com
+      http:
+        paths:
+          # app1へのルーティングルール
+          - backend:
+              service:
+                name: app1
+                port:
+                  number: 80
+            path: /app1
+            pathType: Prefix
+          # app2へのルーティングルール
+          - backend:
+              service:
+                name: app2
+                port:
+                  number: 80
+            path: /app2
+            pathType: Prefix

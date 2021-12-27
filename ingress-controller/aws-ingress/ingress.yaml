@@ -1,0 +1,31 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app-aws-ingress
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    # S3アクセスログ保管設定
+    alb.ingress.kubernetes.io/load-balancer-attributes: |
+      access_logs.s3.enabled=true,access_logs.s3.bucket=mz-alb-access-logs-001,access_logs.s3.prefix=sample-app
+spec:
+  ingressClassName: aws
+  rules:
+    - host: sample-app.mamezou-tech.com
+      http:
+        paths:
+          # app1へのルーティングルール
+          - backend:
+              service:
+                name: app1
+                port:
+                  number: 80
+            path: /app1
+            pathType: Prefix
+          # app2へのルーティングルール
+          - backend:
+              service:
+                name: app2
+                port:
+                  number: 80
+            path: /app2
+            pathType: Prefix

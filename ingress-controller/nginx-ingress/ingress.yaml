@@ -1,0 +1,33 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app-ingress
+  annotations:
+#    nginx.ingress.kubernetes.io/affinity: "cookie"
+    # Rate-Limit設定
+    nginx.ingress.kubernetes.io/limit-rps: "5"
+spec:
+  ingressClassName: nginx # k8s 1.19以降では必要
+  rules:
+    # app1へのルーティングルール
+    - host: sample-app1.mamezou-tech.com
+      http:
+        paths:
+          - backend:
+              service:
+                name: app1
+                port:
+                  number: 80
+            path: /
+            pathType: Prefix
+    # app2へのルーティングルール
+    - host: sample-app2.mamezou-tech.com
+      http:
+        paths:
+          - backend:
+              service:
+                name: app2
+                port:
+                  number: 80
+            path: /
+            pathType: Prefix

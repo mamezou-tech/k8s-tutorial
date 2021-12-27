@@ -1,0 +1,36 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app-aws-ingress
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: k8s-tutorial.mamezou-tech.com
+    # Let's EncryptのIssuerを指定
+    cert-manager.io/issuer: "letsencrypt-issuer"
+    cert-manager.io/renew-before: 2158h
+spec:
+  ingressClassName: nginx
+  # IngressのTLS設定
+  tls:
+    - hosts:
+        - k8s-tutorial2.mamezou-tech.com
+      secretName: letsencrypt-cert
+  rules:
+    - host: k8s-tutorial.mamezou-tech.com
+      http:
+        paths:
+          # app1へのルーティングルール
+          - backend:
+              service:
+                name: app1
+                port:
+                  number: 80
+            path: /app1
+            pathType: Prefix
+          # app2へのルーティングルール
+          - backend:
+              service:
+                name: app2
+                port:
+                  number: 80
+            path: /app2
+            pathType: Prefix

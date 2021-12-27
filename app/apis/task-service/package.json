@@ -1,0 +1,45 @@
+{
+  "name": "task-service",
+  "version": "1.0.0",
+  "description": "k8s tutorial sample app",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "ts-node ./src/index.ts",
+    "start:dev": "ts-node-dev ./src/index.ts",
+    "tsc": "tsc",
+    "build:local": "NODE_ENV=local-k8s webpack --mode development",
+    "build:staging": "NODE_ENV=staging webpack --mode production",
+    "build:prod": "NODE_ENV=production webpack --mode production",
+    "lint": "eslint --fix ./src/**/*.ts"
+  },
+  "author": "noboru-kudo",
+  "license": "MIT",
+  "dependencies": {
+    "@types/uuid": "^8.3.3",
+    "aws-sdk": "^2.1031.0",
+    "dayjs": "^1.10.7",
+    "express": "^4.17.1",
+    "express-promise-router": "^4.1.1",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.13",
+    "@types/node": "^16.11.7",
+    "@typescript-eslint/eslint-plugin": "^5.6.0",
+    "@typescript-eslint/parser": "^5.6.0",
+    "eslint": "^8.4.1",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-import-resolver-webpack": "^0.13.2",
+    "eslint-plugin-import": "^2.25.3",
+    "eslint-plugin-prettier": "^4.0.0",
+    "prettier": "^2.5.1",
+    "ts-loader": "^9.2.6",
+    "ts-node": "^10.4.0",
+    "ts-node-dev": "^1.1.8",
+    "typescript": "^4.5.2",
+    "webpack": "^5.64.1",
+    "webpack-cli": "^4.9.1",
+    "webpack-node-externals": "^3.0.0"
+  }
+}
