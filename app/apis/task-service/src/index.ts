@@ -19,7 +19,7 @@ app.use(errorHandler);
 
 const router = Router();
 app.use("/api", router);
-router.post("/tasks", () => createTaskHandler);
+router.post("/tasks", createTaskHandler);
 router.put("/tasks", updateTaskHandler);
 router.get("/tasks", listTasksHandler);
 
