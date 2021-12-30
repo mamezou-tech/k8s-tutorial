@@ -11,5 +11,5 @@ build:
 deploy:
   kubectl:
     manifests:
-    - k8s/v1-answer/task-service/*.yaml
-    - k8s/v1-answer/ingress/*.yaml
+    - k8s/v1-ans/task-service/*.yaml
+    - k8s/v1-ans/ingress/*.yaml
