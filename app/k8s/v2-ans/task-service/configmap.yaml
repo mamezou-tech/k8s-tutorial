@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: task-service-config
+data:
+  STAGE: localstack
+  NODE_ENV: development
+  TZ: Asia/Tokyo
+  TASK_TABLE_NAME: tasks
+  AWS_ENDPOINT: http://localstack:4566
+  AWS_DEFAULT_REGION: local
+  AWS_ACCESS_KEY_ID: localstack
+  AWS_SECRET_ACCESS_KEY: localstack

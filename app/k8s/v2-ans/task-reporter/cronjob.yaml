@@ -1,0 +1,60 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: task-reporter
+  labels:
+    app: task-reporter
+spec:
+  # CronJobの設定
+  schedule: "0 15 * * *"
+#  schedule: "*/3 * * * *"
+  # 失敗ジョブは3世代保有
+  failedJobsHistoryLimit: 3
+  # 成功ジョブは3世代保有
+  successfulJobsHistoryLimit: 3
+  # 重複実行を許可(デフォルト値)
+  concurrencyPolicy: Allow
+  # スケジュールは有効(デフォルト値)
+  suspend: false
+  jobTemplate:
+    metadata:
+      labels:
+        app: task-reporter
+    spec:
+      # Jobの設定
+      # 1回成功すれば完了(デフォルト値)
+      completions: 1
+      # 並列実行しない(デフォルト値)
+      parallelism: 1
+      # 1時間以内で終了
+      activeDeadlineSeconds: 3600
+      # 10回リトライ
+      backoffLimit: 10
+      template:
+        metadata:
+          labels:
+            app: task-reporter
+        spec:
+          # ワンショットのため再起動はしない(Job側で制御)
+          restartPolicy: Never
+          # Podの設定
+          containers:
+            - name: task-reporter
+              image: task-reporter
+              # LocalなのでImagePullはしない
+              imagePullPolicy: Never
+              # ConfigMapから環境変数を指定
+              envFrom:
+                - configMapRef:
+                    name: task-reporter-config
+              # アプリで使用する一時領域(emptyDirをコンテナにマウント)
+              env:
+                - name: TEMP_DIR
+                  value: /var/app/temp
+              volumeMounts:
+                - mountPath: /var/app/temp
+                  name: app-temp-dir
+          volumes:
+            - name: app-temp-dir
+              emptyDir:
+                sizeLimit: 10Gi

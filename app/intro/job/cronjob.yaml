@@ -1,0 +1,25 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: foo
+spec:
+  schedule: "* * * * *"
+  successfulJobsHistoryLimit: 10
+  jobTemplate:
+    metadata:
+      name: foo
+    spec:
+      ttlSecondsAfterFinished: 30
+      template:
+        spec:
+          containers:
+          - image: alpine
+            name: foo
+            args:
+              - sh
+              - -c
+              - |
+                echo "cronjob $(date)"
+                exit 0
+          restartPolicy: Never
+
