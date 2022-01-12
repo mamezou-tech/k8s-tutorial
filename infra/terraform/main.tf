@@ -9,9 +9,9 @@ terraform {
   }
   # 実行するProviderの条件
   required_providers {
-    aws = {
+    aws        = {
       source  = "hashicorp/aws"
-      version = "3.62.0"
+      version = "~> 3.62"
     }
     kubernetes = {
       source  = "hashicorp/kubernetes"
@@ -39,7 +39,7 @@ module "vpc" {
   enable_vpn_gateway = false
 
   # enable AWS Load Balancer Controller subnet-discovery
-  public_subnet_tags = {
+  public_subnet_tags  = {
     "kubernetes.io/role/elb" = "1"
   }
   private_subnet_tags = {
@@ -48,25 +48,23 @@ module "vpc" {
 }
 
 module "eks" {
-  source          = "terraform-aws-modules/eks/aws"
-  cluster_version = "1.21"
-  cluster_name    = "mz-k8s"
-  vpc_id          = module.vpc.vpc_id
-  subnets         = module.vpc.private_subnets
-  enable_irsa     = true
-  node_groups = {
+  source                  = "terraform-aws-modules/eks/aws"
+  version                 = "18.0.5"
+  cluster_version         = "1.21"
+  cluster_name            = "mz-k8s"
+  vpc_id                  = module.vpc.vpc_id
+  subnet_ids              = module.vpc.private_subnets
+  enable_irsa             = true
+  eks_managed_node_groups = {
     mz_node = {
       desired_capacity = 2
       instance_types   = ["m5.large"]
     }
   }
-  map_users = [
-    {
-      userarn  = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:user/noboru-kudo"
-      username = "noboru-kudo"
-      groups   = ["system:masters"]
-    }
-  ]
+}
+
+output "aws_auth_config_map" {
+  value = module.eks.aws_auth_configmap_yaml
 }
 
 data "aws_eks_cluster" "eks" {
@@ -102,8 +100,8 @@ module "iam_assumable_role_admin" {
 
 resource "kubernetes_service_account" "aws_loadbalancer_controller" {
   metadata {
-    name      = "aws-load-balancer-controller"
-    namespace = "kube-system"
+    name        = "aws-load-balancer-controller"
+    namespace   = "kube-system"
     annotations = {
       "eks.amazonaws.com/role-arn" = module.iam_assumable_role_admin.iam_role_arn
     }
@@ -129,13 +127,15 @@ module "external_dns" {
   role_name                     = "EKSExternalDNS"
   provider_url                  = replace(module.eks.cluster_oidc_issuer_url, "https://", "")
   role_policy_arns              = [aws_iam_policy.external_dns.arn]
-  oidc_fully_qualified_subjects = ["system:serviceaccount:${kubernetes_namespace.external_dns.metadata[0].name}:external-dns"]
+  oidc_fully_qualified_subjects = [
+    "system:serviceaccount:${kubernetes_namespace.external_dns.metadata[0].name}:external-dns"
+  ]
 }
 
 resource "kubernetes_service_account" "external_dns" {
   metadata {
-    name      = "external-dns"
-    namespace = kubernetes_namespace.external_dns.metadata[0].name
+    name        = "external-dns"
+    namespace   = kubernetes_namespace.external_dns.metadata[0].name
     annotations = {
       "eks.amazonaws.com/role-arn" = module.external_dns.iam_role_arn
     }
@@ -160,8 +160,8 @@ module "ebs_csi" {
 
 resource "kubernetes_service_account" "ebs_csi" {
   metadata {
-    name      = "aws-ebs-controller"
-    namespace = "kube-system"
+    name        = "aws-ebs-controller"
+    namespace   = "kube-system"
     annotations = {
       "eks.amazonaws.com/role-arn" = module.ebs_csi.iam_role_arn
     }
@@ -186,8 +186,8 @@ module "efs_csi_controller" {
 
 resource "kubernetes_service_account" "efs_csi_controller" {
   metadata {
-    name      = "aws-efs-controller"
-    namespace = "kube-system"
+    name        = "aws-efs-controller"
+    namespace   = "kube-system"
     annotations = {
       "eks.amazonaws.com/role-arn" = module.efs_csi_controller.iam_role_arn
     }
@@ -211,8 +211,8 @@ module "efs_csi_node" {
 
 resource "kubernetes_service_account" "efs_csi_node" {
   metadata {
-    name      = "aws-efs-node"
-    namespace = "kube-system"
+    name        = "aws-efs-node"
+    namespace   = "kube-system"
     annotations = {
       "eks.amazonaws.com/role-arn" = module.efs_csi_node.iam_role_arn
     }
@@ -221,7 +221,7 @@ resource "kubernetes_service_account" "efs_csi_node" {
 
 # for EFS
 resource "aws_efs_file_system" "this" {
-  tags = {
+  tags      = {
     Name = "k8s-efs-test"
   }
   encrypted = true
@@ -233,17 +233,17 @@ resource "aws_security_group" "efs_mount_target" {
   vpc_id      = module.vpc.vpc_id
 
   ingress {
-    from_port        = 2049
-    to_port          = 2049
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
+    from_port   = 2049
+    to_port     = 2049
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 }
 
