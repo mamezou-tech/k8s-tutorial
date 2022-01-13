@@ -1,0 +1,24 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: test
+spec:
+  completions: 2
+  completionMode: Indexed
+  #activeDeadlineSeconds: 30
+  ttlSecondsAfterFinished: 30
+  template:
+    spec:
+      containers:
+      - image: alpine
+        name: test
+        args:
+          - sh
+          - -c
+          - |
+            echo "started!"
+            hostname
+            echo "index: $JOB_COMPLETION_INDEX"
+            sleep 1
+            exit 0
+      restartPolicy: Never
