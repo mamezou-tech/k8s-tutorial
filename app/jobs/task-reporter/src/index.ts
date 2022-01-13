@@ -1,6 +1,5 @@
 import { DocumentClient } from "aws-sdk/clients/dynamodb";
 import dayjs from "dayjs";
-import process from "process";
 import fs from "fs";
 import utc from "dayjs/plugin/utc";
 import { dynamodbClient, s3Client } from "./aws-client";
