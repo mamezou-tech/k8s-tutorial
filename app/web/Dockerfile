@@ -1,9 +1,9 @@
 FROM node:16-alpine as builder
-ARG stage
+ARG stage=prod
 WORKDIR /src
 COPY src ./
 COPY package*.json ./
-RUN npm install
+RUN npm ci
 COPY . .
 RUN npm run build:${stage}
 
