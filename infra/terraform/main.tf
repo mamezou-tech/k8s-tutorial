@@ -11,7 +11,7 @@ terraform {
   required_providers {
     aws        = {
       source  = "hashicorp/aws"
-      version = "~> 3.62"
+      version = "~> 3.71.0"
     }
     kubernetes = {
       source  = "hashicorp/kubernetes"
@@ -48,17 +48,27 @@ module "vpc" {
 }
 
 module "eks" {
-  source                  = "terraform-aws-modules/eks/aws"
-  version                 = "18.0.5"
-  cluster_version         = "1.21"
-  cluster_name            = "mz-k8s"
-  vpc_id                  = module.vpc.vpc_id
-  subnet_ids              = module.vpc.private_subnets
-  enable_irsa             = true
-  eks_managed_node_groups = {
+  source                               = "terraform-aws-modules/eks/aws"
+  version                              = "18.0.5"
+  cluster_version                      = "1.21"
+  cluster_name                         = "mz-k8s"
+  vpc_id                               = module.vpc.vpc_id
+  subnet_ids                           = module.vpc.private_subnets
+  enable_irsa                          = true
+  eks_managed_node_groups              = {
     mz_node = {
-      desired_capacity = 2
-      instance_types   = ["m5.large"]
+      desired_size   = 2
+      instance_types = ["m5.large"]
+    }
+  }
+  node_security_group_additional_rules = {
+    admission_webhook = {
+      description = "Admission Webhook"
+      protocol    = "tcp"
+      from_port   = 0
+      to_port     = 0
+      type        = "ingress"
+      source_cluster_security_group = true
     }
   }
 }
