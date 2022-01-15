@@ -9,7 +9,7 @@ terraform {
   }
   # 実行するProviderの条件
   required_providers {
-    aws        = {
+    aws = {
       source  = "hashicorp/aws"
       version = "~> 3.71.0"
     }
@@ -39,7 +39,7 @@ module "vpc" {
   enable_vpn_gateway = false
 
   # enable AWS Load Balancer Controller subnet-discovery
-  public_subnet_tags  = {
+  public_subnet_tags = {
     "kubernetes.io/role/elb" = "1"
   }
   private_subnet_tags = {
@@ -48,14 +48,14 @@ module "vpc" {
 }
 
 module "eks" {
-  source                               = "terraform-aws-modules/eks/aws"
-  version                              = "18.0.5"
-  cluster_version                      = "1.21"
-  cluster_name                         = "mz-k8s"
-  vpc_id                               = module.vpc.vpc_id
-  subnet_ids                           = module.vpc.private_subnets
-  enable_irsa                          = true
-  eks_managed_node_groups              = {
+  source          = "terraform-aws-modules/eks/aws"
+  version         = "18.0.5"
+  cluster_version = "1.21"
+  cluster_name    = "mz-k8s"
+  vpc_id          = module.vpc.vpc_id
+  subnet_ids      = module.vpc.private_subnets
+  enable_irsa     = true
+  eks_managed_node_groups = {
     mz_node = {
       desired_size   = 2
       instance_types = ["m5.large"]
@@ -63,12 +63,40 @@ module "eks" {
   }
   node_security_group_additional_rules = {
     admission_webhook = {
-      description = "Admission Webhook"
+      description                   = "Admission Webhook"
+      protocol                      = "tcp"
+      from_port                     = 0
+      to_port                       = 65535
+      type                          = "ingress"
+      source_cluster_security_group = true
+    }
+
+    # Node to node communications
+    ingress_node_communications = {
+      description = "Ingress Node to node"
       protocol    = "tcp"
       from_port   = 0
       to_port     = 65535
       type        = "ingress"
-      source_cluster_security_group = true
+      self        = true
+    }
+    egress_node_communications = {
+      description = "Egress Node to node"
+      protocol    = "tcp"
+      from_port   = 0
+      to_port     = 65535
+      type        = "egress"
+      self        = true
+    }
+
+    # cert-manager require ACME self check using http protocol
+    egress_self_http = {
+      description = "Egress HTTP to internet"
+      protocol    = "tcp"
+      from_port   = 80
+      to_port     = 80
+      type        = "egress"
+      cidr_blocks = ["0.0.0.0/0"]
     }
   }
 }
@@ -110,8 +138,8 @@ module "iam_assumable_role_admin" {
 
 resource "kubernetes_service_account" "aws_loadbalancer_controller" {
   metadata {
-    name        = "aws-load-balancer-controller"
-    namespace   = "kube-system"
+    name      = "aws-load-balancer-controller"
+    namespace = "kube-system"
     annotations = {
       "eks.amazonaws.com/role-arn" = module.iam_assumable_role_admin.iam_role_arn
     }
@@ -131,12 +159,12 @@ resource "kubernetes_namespace" "external_dns" {
 }
 
 module "external_dns" {
-  source                        = "terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc"
-  version                       = "~> 4.0"
-  create_role                   = true
-  role_name                     = "EKSExternalDNS"
-  provider_url                  = replace(module.eks.cluster_oidc_issuer_url, "https://", "")
-  role_policy_arns              = [aws_iam_policy.external_dns.arn]
+  source           = "terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc"
+  version          = "~> 4.0"
+  create_role      = true
+  role_name        = "EKSExternalDNS"
+  provider_url     = replace(module.eks.cluster_oidc_issuer_url, "https://", "")
+  role_policy_arns = [aws_iam_policy.external_dns.arn]
   oidc_fully_qualified_subjects = [
     "system:serviceaccount:${kubernetes_namespace.external_dns.metadata[0].name}:external-dns"
   ]
@@ -144,8 +172,8 @@ module "external_dns" {
 
 resource "kubernetes_service_account" "external_dns" {
   metadata {
-    name        = "external-dns"
-    namespace   = kubernetes_namespace.external_dns.metadata[0].name
+    name      = "external-dns"
+    namespace = kubernetes_namespace.external_dns.metadata[0].name
     annotations = {
       "eks.amazonaws.com/role-arn" = module.external_dns.iam_role_arn
     }
@@ -170,8 +198,8 @@ module "ebs_csi" {
 
 resource "kubernetes_service_account" "ebs_csi" {
   metadata {
-    name        = "aws-ebs-controller"
-    namespace   = "kube-system"
+    name      = "aws-ebs-controller"
+    namespace = "kube-system"
     annotations = {
       "eks.amazonaws.com/role-arn" = module.ebs_csi.iam_role_arn
     }
@@ -196,8 +224,8 @@ module "efs_csi_controller" {
 
 resource "kubernetes_service_account" "efs_csi_controller" {
   metadata {
-    name        = "aws-efs-controller"
-    namespace   = "kube-system"
+    name      = "aws-efs-controller"
+    namespace = "kube-system"
     annotations = {
       "eks.amazonaws.com/role-arn" = module.efs_csi_controller.iam_role_arn
     }
@@ -221,8 +249,8 @@ module "efs_csi_node" {
 
 resource "kubernetes_service_account" "efs_csi_node" {
   metadata {
-    name        = "aws-efs-node"
-    namespace   = "kube-system"
+    name      = "aws-efs-node"
+    namespace = "kube-system"
     annotations = {
       "eks.amazonaws.com/role-arn" = module.efs_csi_node.iam_role_arn
     }
@@ -231,7 +259,7 @@ resource "kubernetes_service_account" "efs_csi_node" {
 
 # for EFS
 resource "aws_efs_file_system" "this" {
-  tags      = {
+  tags = {
     Name = "k8s-efs-test"
   }
   encrypted = true
