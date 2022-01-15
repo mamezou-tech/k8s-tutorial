@@ -3,7 +3,6 @@
   value:
     external-dns.alpha.kubernetes.io/hostname: task.mamezou-tech.com
     cert-manager.io/issuer: "prod-letsencrypt-issuer"
-    cert-manager.io/renew-before: 2158h
 - op: add
   path: /spec/tls
   value:
