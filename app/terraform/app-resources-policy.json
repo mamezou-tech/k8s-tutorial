@@ -1,0 +1,22 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "VisualEditor0",
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:CreateTable",
+        "dynamodb:TagResource",
+        "dynamodb:UntagResource",
+        "dynamodb:Describe*",
+        "dynamodb:List*",
+        "s3:Get*",
+        "s3:CreateBucket",
+        "s3:List*",
+        "dynamodb:DeleteTable",
+        "s3:DeleteBucket"
+      ],
+      "Resource": "*"
+    }
+  ]
+}

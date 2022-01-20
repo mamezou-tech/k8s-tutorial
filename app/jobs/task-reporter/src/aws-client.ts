@@ -3,7 +3,7 @@ import S3 from "aws-sdk/clients/s3";
 import { ServiceConfigurationOptions } from "aws-sdk/lib/service";
 
 const options: ServiceConfigurationOptions = {
-  endpoint: process.env.AWS_ENDPOINT || "http://localhost:4566",
+  endpoint: process.env.AWS_ENDPOINT,
   region: process.env.AWS_DEFAULT_REGION || "ap-northeast-1",
   httpOptions: {
     connectTimeout: 1000,

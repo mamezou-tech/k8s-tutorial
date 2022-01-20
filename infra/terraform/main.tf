@@ -90,7 +90,7 @@ module "eks" {
     }
 
     # cert-manager require ACME self check using http protocol
-    egress_self_http = {
+    egress_http_internet = {
       description = "Egress HTTP to internet"
       protocol    = "tcp"
       from_port   = 80
@@ -103,6 +103,10 @@ module "eks" {
 
 output "aws_auth_config_map" {
   value = module.eks.aws_auth_configmap_yaml
+}
+
+output "eks_oidc_provider_url" {
+  value = replace(module.eks.cluster_oidc_issuer_url, "https://", "")
 }
 
 data "aws_eks_cluster" "eks" {
@@ -290,4 +294,8 @@ resource "aws_efs_mount_target" "this" {
   file_system_id  = aws_efs_file_system.this.id
   subnet_id       = module.vpc.private_subnets[count.index]
   security_groups = [aws_security_group.efs_mount_target.id]
+}
+
+output "eks_cluster_oidc_issuer_url" {
+  value = replace(module.eks.cluster_oidc_issuer_url, "https://", "")
 }
