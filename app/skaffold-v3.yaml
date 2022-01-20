@@ -1,0 +1,19 @@
+apiVersion: skaffold/v2beta26
+kind: Config
+metadata:
+  name: app
+build:
+  artifacts:
+  - image: task-service
+    context: apis/task-service
+    docker:
+      dockerfile: Dockerfile.local
+  - image: task-reporter
+    context: jobs/task-reporter
+    docker:
+      dockerfile: Dockerfile.local
+deploy:
+  kustomize:
+    paths:
+      - k8s/v3-ans/overlays/local
+

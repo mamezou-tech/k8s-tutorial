@@ -12,7 +12,7 @@ spec:
   # IngressのTLS設定
   tls:
     - hosts:
-        - k8s-tutorial2.mamezou-tech.com
+        - k8s-tutorial.mamezou-tech.com
       secretName: letsencrypt-cert
   rules:
     - host: k8s-tutorial.mamezou-tech.com
