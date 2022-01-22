@@ -29,7 +29,7 @@ resource "aws_ecr_repository" "task_service" {
 resource "aws_ecr_repository" "task_web" {
   name = "mamezou-tech/task-web"
 }
-# 完了タスク出力レポートバッチ
+# 完了タスクレポート出力バッチ
 resource "aws_ecr_repository" "task_reporter" {
   name = "mamezou-tech/task-reporter"
 }
@@ -114,15 +114,11 @@ data "aws_iam_policy_document" "app_task_table" {
   statement {
     actions   = [
       "dynamodb:BatchGet*",
-      "dynamodb:DescribeStream",
       "dynamodb:DescribeTable",
       "dynamodb:Get*",
       "dynamodb:Query",
       "dynamodb:Scan",
       "dynamodb:BatchWrite*",
-      "dynamodb:CreateTable",
-      "dynamodb:Delete*",
-      "dynamodb:Update*",
       "dynamodb:PutItem"
     ]
     resources = [
