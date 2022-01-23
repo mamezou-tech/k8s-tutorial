@@ -295,7 +295,3 @@ resource "aws_efs_mount_target" "this" {
   subnet_id       = module.vpc.private_subnets[count.index]
   security_groups = [aws_security_group.efs_mount_target.id]
 }
-
-output "eks_cluster_oidc_issuer_url" {
-  value = replace(module.eks.cluster_oidc_issuer_url, "https://", "")
-}

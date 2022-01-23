@@ -1,0 +1,33 @@
+commonLabels:
+  env: local
+
+namePrefix: local-
+
+resources:
+  - ../../base
+
+patches:
+  - path: patches/task-service/deployment.patch.yaml
+  - path: patches/task-reporter/cronjob.patch.yaml
+  - path: patches/ingress/ingress.patch.yaml
+    target:
+      kind: Ingress
+      name: app-ingress
+
+configMapGenerator:
+  - name: task-service-config
+    behavior: merge
+    envs:
+      - patches/task-service/.env
+  - name: task-reporter-config
+    behavior: merge
+    envs:
+      - patches/task-reporter/.env
+
+images:
+  - name: task-service
+    newName: task-service
+    newTag: latest
+  - name: task-reporter
+    newName: task-reporter
+    newTag: latest

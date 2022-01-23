@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: task-service
+spec:
+  # ReplicaSetのラベルセレクター
+  selector:
+    matchLabels:
+      app: task-service
+  template:
+    metadata:
+      # Podのラベル
+      labels:
+        app: task-service
+    spec:
+      containers:
+        - name: task-service
+          # アプリケーションコンテナ
+          image: task-service
+          # Podの公開ポート
+          ports:
+            - name: http
+              containerPort: 3000
+          # ConfigMapから環境変数を指定
+          envFrom:
+            - configMapRef:
+                name: task-service-config
+          # 各種ヘルスチェック
+          readinessProbe:
+            httpGet:
+              port: 3000
+              path: /health/readiness
+          livenessProbe:
+            httpGet:
+              port: 3000
+              path: /health/liveness
+          startupProbe:
+            httpGet:
+              port: 3000
+              path: /health/startup
