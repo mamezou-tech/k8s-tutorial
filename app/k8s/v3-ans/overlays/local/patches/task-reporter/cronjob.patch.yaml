@@ -1,0 +1,12 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: task-reporter
+spec:
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: task-reporter
+              imagePullPolicy: Never

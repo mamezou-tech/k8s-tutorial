@@ -11,4 +11,4 @@ deploy:
   kubectl:
     manifests:
     - app.yaml
-    - ingress.yaml
+    - ingress.patch.yaml

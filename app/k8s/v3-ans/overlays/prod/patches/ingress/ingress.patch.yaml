@@ -1,0 +1,24 @@
+- op: add
+  path: /metadata/annotations
+  value:
+    external-dns.alpha.kubernetes.io/hostname: task.mamezou-tech.com
+    cert-manager.io/issuer: "prod-letsencrypt-issuer"
+- op: add
+  path: /spec/tls
+  value:
+    - hosts:
+        - task.mamezou-tech.com
+      secretName: letsencrypt-cert
+- op: replace
+  path: /spec/rules/0/host
+  value: task.mamezou-tech.com
+- op: add
+  path: /spec/rules/0/http/paths/-
+  value:
+    backend:
+      service:
+        name: task-web
+        port:
+          number: 8080
+    path: /
+    pathType: Prefix
