@@ -1,0 +1,15 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: task-tool
+  namespace: flux-system
+spec:
+  interval: 5m0s
+  path: ./app/k8s/v3-ans/overlays/prod
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: task-tool
+  targetNamespace: prod
+
