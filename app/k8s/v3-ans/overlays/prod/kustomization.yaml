@@ -5,36 +5,38 @@ namespace: prod
 namePrefix: prod-
 
 resources:
-  - ../../base
-  - task-web/deployment.yaml
-  - task-web/service.yaml
-  - lets-encrypt-issuer.yaml
+- ../../base
+- task-web/deployment.yaml
+- task-web/service.yaml
+- lets-encrypt-issuer.yaml
 
 patches:
-  - path: patches/task-service/deployment.patch.yaml
-  - path: patches/task-reporter/cronjob.patch.yaml
-  - target:
-      kind: Ingress
-      name: app-ingress
-    path: patches/ingress/ingress.patch.yaml
+- path: patches/task-service/deployment.patch.yaml
+- path: patches/task-reporter/cronjob.patch.yaml
+- path: patches/ingress/ingress.patch.yaml
+  target:
+    kind: Ingress
+    name: app-ingress
 
 configMapGenerator:
-  - name: task-service-config
-    behavior: merge
-    envs:
-      - patches/task-service/.env
-  - name: task-reporter-config
-    behavior: merge
-    envs:
-      - patches/task-reporter/.env
+- behavior: merge
+  envs:
+  - patches/task-service/.env
+  name: task-service-config
+- behavior: merge
+  envs:
+  - patches/task-reporter/.env
+  name: task-reporter-config
 
 images:
-  - name: task-service
-    newName: <aws-account-id>.dkr.ecr.ap-northeast-1.amazonaws.com/mamezou-tech/task-service
-    newTag: 1.0.0
-  - name: task-reporter
-    newName: <aws-account-id>.dkr.ecr.ap-northeast-1.amazonaws.com/mamezou-tech/task-reporter
-    newTag: 1.0.0
-  - name: task-web
-    newName: <aws-account-id>.dkr.ecr.ap-northeast-1.amazonaws.com/mamezou-tech/task-web
-    newTag: 1.0.0
+- name: task-reporter
+  newName: 446197467950.dkr.ecr.ap-northeast-1.amazonaws.com/mamezou-tech/task-reporter
+  newTag: 1.0.0
+- name: task-service
+  newName: 446197467950.dkr.ecr.ap-northeast-1.amazonaws.com/mamezou-tech/task-service
+  newTag: 1.0.0
+- name: task-web
+  newName: 446197467950.dkr.ecr.ap-northeast-1.amazonaws.com/mamezou-tech/task-web
+  newTag: 1.0.0
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
