@@ -21,5 +21,7 @@ spec:
           namespace: prod
         spec:
           replicas: 5
-
+      target:
+        kind: Deployment
+        name: task-web
 
