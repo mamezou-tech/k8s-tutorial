@@ -1,0 +1,10 @@
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta1
+kind: ImageRepository
+metadata:
+  name: task-service
+  namespace: flux-system
+spec:
+  image: 446197467950.dkr.ecr.ap-northeast-1.amazonaws.com/mamezou-tech/task-service
+  interval: 1m0s
+
