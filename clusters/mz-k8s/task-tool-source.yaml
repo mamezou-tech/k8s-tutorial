@@ -1,0 +1,12 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta1
+kind: GitRepository
+metadata:
+  name: task-tool
+  namespace: flux-system
+spec:
+  interval: 30s
+  ref:
+    branch: feature/flux
+  url: https://github.com/mamezou-tech/k8s-tutorial
+
