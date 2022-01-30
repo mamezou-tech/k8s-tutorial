@@ -98,6 +98,16 @@ module "eks" {
       type        = "egress"
       cidr_blocks = ["0.0.0.0/0"]
     }
+
+    # flux require ssh access to clone git repository
+    egress_ssh_internet = {
+      description = "Egress SSH to internet"
+      protocol    = "tcp"
+      from_port   = 22
+      to_port     = 22
+      type        = "egress"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
   }
 }
 
