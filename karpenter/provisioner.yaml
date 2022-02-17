@@ -1,0 +1,21 @@
+apiVersion: karpenter.sh/v1alpha5
+kind: Provisioner
+metadata:
+  name: default
+spec:
+  requirements:
+    - key: karpenter.sh/capacity-type
+      operator: In
+      # Spotインスタンスが優先される
+      values: ["spot", "on-demand"]
+  # クラスタ全体の制限。Podのlimitで誤った指定した場合の過度なインスタンス生成を抑制
+  limits:
+    resources:
+      cpu: 100
+  provider:
+    subnetSelector:
+      karpenter.sh/discovery: mz-karpenter
+    securityGroupSelector:
+      karpenter.sh/discovery: mz-karpenter
+  ttlSecondsAfterEmpty: 30
+  ttlSecondsUntilExpired: 1800

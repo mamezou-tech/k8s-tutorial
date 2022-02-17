@@ -1,0 +1,25 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: app
+  labels:
+    app.kubernetes.io/name: app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: app
+  template:
+    metadata:
+      name: app
+      labels:
+        app.kubernetes.io/name: app
+    spec:
+      containers:
+        - name: app
+          image: alpine:latest
+          command: [sh, -c, "sleep infinity"]
+          resources:
+            requests:
+              cpu: 500m
+              memory: 512Mi

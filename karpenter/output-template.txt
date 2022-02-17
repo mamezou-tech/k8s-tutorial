@@ -1,0 +1,9 @@
+{"Name:"}{"\t\t"}{.metadata.name}
+{"InstanceType:"}{"\t"}{.metadata.labels.node\.kubernetes\.io/instance-type}
+{"PurchaseOption:"}{"\t"}{.metadata.labels.karpenter\.sh/capacity-type}
+{"AZ:"}{"\t\t"}{.metadata.labels.topology\.kubernetes\.io/zone}
+{"CPU:"}{"\t\t"}{.status.capacity.cpu}
+{"Memory:"}{"\t\t"}{.status.capacity.memory}
+{"Created:"}{"\t"}{.metadata.creationTimestamp}
+{"CRI:"}{"\t\t"}{.status.nodeInfo.containerRuntimeVersion}
+{"Status:"}{"\t\t"}{.status.conditions[*].reason}
