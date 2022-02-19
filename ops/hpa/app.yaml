@@ -1,0 +1,55 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: app
+  labels:
+    app: app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: app
+  template:
+    metadata:
+      name: app
+      labels:
+        app: app
+    spec:
+      containers:
+        - name: app
+          image: kennethreitz/httpbin
+          ports:
+            - name: http
+              containerPort: 80
+          resources:
+            requests:
+              cpu: 20m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app
+spec:
+  selector:
+    app: app
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /
+            backend:
+              service:
+                name: app
+                port:
+                  name: http
+            pathType: Prefix
