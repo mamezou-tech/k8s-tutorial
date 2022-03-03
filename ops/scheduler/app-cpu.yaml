@@ -1,0 +1,27 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: app-cpu
+  labels:
+    app: app-cpu
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: app-cpu
+  template:
+    metadata:
+      name: app-cpu
+      labels:
+        app: app-cpu
+    spec:
+      nodeSelector:
+        node.kubernetes.io/instance-type: c5.xlarge
+      tolerations:
+        - key: compute-optimized
+          operator: Exists
+          effect: NoSchedule
+      containers:
+        - name: app-cpu
+          image: alpine:latest
+          command: [sh, -c, "sleep infinity"]

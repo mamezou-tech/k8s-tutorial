@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: sample-non-root
+  name: sample-non-root
+  namespace: sample
+spec:
+  selector:
+    matchLabels:
+      app: sample-non-root
+  template:
+    metadata:
+      labels:
+        app: sample-non-root
+    spec:
+      containers:
+        - name: sample-non-root
+          image: sample-app:latest
+          imagePullPolicy: Never
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        seccompProfile:
+          type: RuntimeDefault
+

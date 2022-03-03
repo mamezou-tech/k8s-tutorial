@@ -1,0 +1,82 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: ap-northeast-1a-app
+  labels:
+    app: ap-northeast-1a-app
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: ap-northeast-1a-app
+  template:
+    metadata:
+      name: ap-northeast-1a-app
+      labels:
+        app: ap-northeast-1a-app
+    spec:
+      nodeSelector:
+        topology.kubernetes.io/zone: ap-northeast-1a
+      containers:
+        - name: ap-northeast-1a-app
+          image: alpine:latest
+          command: [sh, -c, "sleep infinity"]
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: app-cpu
+  labels:
+    app: app-cpu
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: app-cpu
+  template:
+    metadata:
+      name: app-cpu
+      labels:
+        app: app-cpu
+    spec:
+      tolerations:
+        - key: compute-optimized
+          operator: Exists
+          effect: NoSchedule
+      containers:
+        - name: app-cpu
+          image: alpine:latest
+          command: [sh, -c, "sleep infinity"]
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: ap-northeast-1c-app
+  labels:
+    app: ap-northeast-1c-app
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: ap-northeast-1c-app
+  template:
+    metadata:
+      name: ap-northeast-1c-app
+      labels:
+        app: ap-northeast-1c-app
+    spec:
+#      nodeSelector:
+#        topology.kubernetes.io/zone: ap-northeast-1c
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: topology.kubernetes.io/zone
+                    operator: In
+                    values:
+                      - ap-northeast-1c
+      containers:
+        - name: ap-northeast-1c-app
+          image: alpine:latest
+          command: [sh, -c, "sleep infinity"]

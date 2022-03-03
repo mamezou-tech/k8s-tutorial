@@ -1,0 +1,26 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+  name: mz-k8s
+  region: ap-northeast-1
+  version: "1.21"
+
+managedNodeGroups:
+  - name: ap-northeast-1a-general-ng
+    availabilityZones: [ap-northeast-1a]
+    instanceName: ap-northeast-1a-general-node
+    instanceType: m5.large # 汎用インスタンス
+    desiredCapacity: 2
+  - name: ap-northeast-1c-general-ng
+    availabilityZones: [ap-northeast-1c]
+    instanceName: ap-northeast-1c-general-node
+    instanceType: m5.large # 汎用インスタンス
+    desiredCapacity: 2
+  - name: ap-northeast-1a-cpu-ng
+    availabilityZones: [ap-northeast-1a]
+    instanceName: ap-northeast-1a-cpu-node
+    instanceType: c5.xlarge # コンピューティング最適化
+    desiredCapacity: 1
+
+iam:
+  withOIDC: true

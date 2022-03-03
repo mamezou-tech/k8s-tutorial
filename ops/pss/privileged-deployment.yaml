@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: sample-privileged
+  name: sample-privileged
+  namespace: sample
+spec:
+  selector:
+    matchLabels:
+      app: sample-privileged
+  template:
+    metadata:
+      labels:
+        app: sample-privileged
+    spec:
+      containers:
+        - name: sample-privileged
+          image: sample-app:latest
+          imagePullPolicy: Never
+          securityContext:
+            privileged: true
+

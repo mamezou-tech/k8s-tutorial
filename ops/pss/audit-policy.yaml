@@ -1,0 +1,10 @@
+apiVersion: audit.k8s.io/v1
+kind: Policy
+rules:
+  - level: Request
+    resources:
+      - group: ""
+        resources: ["pods"]
+    namespaces: ["sample"]
+    verbs: ["create", "edit"]
+
