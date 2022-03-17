@@ -305,3 +305,9 @@ resource "aws_efs_mount_target" "this" {
   subnet_id       = module.vpc.private_subnets[count.index]
   security_groups = [aws_security_group.efs_mount_target.id]
 }
+
+# for AWS Distro for OpenTelemetry
+resource "aws_iam_policy" "eks_aodt_collector" {
+  name   = "EKSADOTCollector"
+  policy = file("${path.module}/otel-collector-policy.json")
+}
