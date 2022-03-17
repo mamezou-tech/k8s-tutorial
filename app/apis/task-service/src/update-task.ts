@@ -2,13 +2,13 @@ import { RequestHandler } from "express";
 import client from "./dynamodb-client";
 import { TaskUpdateRequest } from "./types";
 import dayjs from "dayjs";
+import logger from "./logger";
 
 const updateTaskHandler: RequestHandler<{}, string, TaskUpdateRequest> = async (
   req,
   res
 ) => {
   const { body } = req;
-  console.log("received update request", body);
   const getResponse = await client
     .get({
       TableName: process.env.TASK_TABLE_NAME || "tasks",
@@ -37,7 +37,7 @@ const updateTaskHandler: RequestHandler<{}, string, TaskUpdateRequest> = async (
       },
     })
     .promise();
-  console.log(
+  logger.info(
     "[UPDATE]success! consumed capacity:",
     putResponse.ConsumedCapacity?.CapacityUnits
   );

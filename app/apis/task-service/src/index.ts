@@ -3,19 +3,21 @@ import createTaskHandler from "./create-task";
 import updateTaskHandler from "./update-task";
 import listTasksHandler from "./list-tasks";
 import Router from "express-promise-router";
+import expressWinston from "express-winston";
+import winston from "winston";
+import apiMetrics from 'prometheus-api-metrics';
 
 const app = express();
 app.use(express.json());
 
-const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
-  if (res.headersSent) {
-    return next(err);
-  }
-  console.log("[ERROR]", err);
-  res.header("Content-Type", "text/plain");
-  res.status(500).send(err instanceof Error ? err.message : "error");
-};
-app.use(errorHandler);
+app.use(apiMetrics())
+
+app.use(expressWinston.logger({
+  transports: [
+    new winston.transports.Console()
+  ],
+  format: winston.format.json()
+}));
 
 const router = Router();
 app.use("/api", router);
@@ -32,6 +34,22 @@ app.get("/health/readiness", (req, res) => {
 app.get("/health/startup", (req, res) => {
   res.send("startup OK");
 });
+
+app.use(expressWinston.errorLogger({
+  transports: [
+    new winston.transports.Console()
+  ],
+  format: winston.format.json()
+}))
+
+const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
+  if (res.headersSent) {
+    return next(err);
+  }
+  res.header("Content-Type", "text/plain");
+  res.status(500).send("Something wrong...");
+};
+app.use(errorHandler);
 
 const port = 3000;
 const host = "0.0.0.0"

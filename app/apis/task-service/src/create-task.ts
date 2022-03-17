@@ -2,14 +2,12 @@ import { RequestHandler } from "express";
 import { v4 as uuidv4 } from "uuid";
 import client from "./dynamodb-client";
 import { TaskCreateRequest } from "./types";
+import logger from "./logger";
 
-const createTaskHandler: RequestHandler<
-  {},
+const createTaskHandler: RequestHandler<{},
   { taskId: string },
-  TaskCreateRequest
-> = async (req, res) => {
-  const { body } = req;
-  console.log("received create request", body);
+  TaskCreateRequest> = async (req, res) => {
+  const {body} = req;
   const taskId = uuidv4();
   const response = await client
     .put({
@@ -25,12 +23,11 @@ const createTaskHandler: RequestHandler<
       },
     })
     .promise();
-  console.log(
-    "[CREATE]success! consumed capacity:",
-    response.ConsumedCapacity?.CapacityUnits
+  logger.info(
+    "[CREATE]success! consumed capacity:" + response.ConsumedCapacity?.CapacityUnits
   );
   res.status(201);
-  res.send({ taskId });
+  res.send({taskId});
 };
 
 export default createTaskHandler;

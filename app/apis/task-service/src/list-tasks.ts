@@ -2,6 +2,7 @@ import { RequestHandler } from "express";
 import dayjs from "dayjs";
 import { TaskResponse, TaskSearchRequest } from "./types";
 import client from "./dynamodb-client";
+import logger from "./logger";
 
 const listTasksHandler: RequestHandler<
   {},
@@ -9,7 +10,6 @@ const listTasksHandler: RequestHandler<
   {},
   TaskSearchRequest
 > = async (req, res) => {
-  console.log("received list request", req.query);
   const name = req.query.userName;
   const start = req.query.start ? parseInt(req.query.start || "0") : dayjs().startOf("day").unix();
   const end = req.query.end ? parseInt(req.query.end || "0") : dayjs("2099-12-31").endOf("day").unix();
@@ -27,6 +27,7 @@ const listTasksHandler: RequestHandler<
       Limit: 100,
     })
     .promise();
+  logger.info("[LIST] consumed capacity:" + result.ConsumedCapacity?.CapacityUnits)
   const tasks: TaskResponse[] = (result.Items || []).map((item) => {
     return {
       userName: item.user_name,

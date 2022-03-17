@@ -10,3 +10,8 @@ variable "eks_cluster_name" {
   type    = string
   default = "mz-k8s"
 }
+
+variable "enable_otel" {
+  type = bool
+  default = false
+}

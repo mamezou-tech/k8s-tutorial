@@ -133,6 +133,10 @@ resource "aws_iam_policy" "app_task_table" {
   policy = data.aws_iam_policy_document.app_task_table.json
 }
 
+data "aws_iam_policy" "otel" {
+  name = "EKSADOTCollector"
+}
+
 module "task_service" {
   source                        = "terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc"
   version                       = "~> 4.0"
@@ -140,7 +144,7 @@ module "task_service" {
   role_path                     = "/app/"
   role_name                     = "TaskService"
   provider_url                  = var.oidc_provider_url
-  role_policy_arns              = [aws_iam_policy.app_task_table.arn]
+  role_policy_arns              = concat([aws_iam_policy.app_task_table.arn], var.enable_otel ? [aws_iam_policy.app_task_table.arn] : [])
   oidc_fully_qualified_subjects = ["system:serviceaccount:${var.env}:task-service"]
 }
 
