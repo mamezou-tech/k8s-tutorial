@@ -1,0 +1,21 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: task-reporter
+spec:
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          # IRSA
+          serviceAccountName: task-reporter
+          containers:
+            - name: task-reporter
+              imagePullPolicy: IfNotPresent
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
+                limits:
+                  cpu: 500m
+                  memory: 512Mi

@@ -99,6 +99,34 @@ resource "kubernetes_namespace" "this" {
 
 data "aws_caller_identity" "current" {}
 
+# for AWS Distro for OpenTelemetry
+
+module "adot_collector" {
+  source                        = "terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc"
+  version                       = "~> 4.0"
+  create_role                   = true
+  role_name                     = "ADOTCollector"
+  provider_url                  = var.oidc_provider_url
+  role_policy_arns              = ["arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"] # AWS managed policy
+  oidc_fully_qualified_subjects = ["system:serviceaccount:amzn-cloudwatch-metrics:adot-collector"]
+}
+
+#resource "kubernetes_namespace" "cloudwatch_metrics" {
+#  metadata {
+#    name = "amzn-cloudwatch-metrics"
+#  }
+#}
+#
+#resource "kubernetes_service_account" "adot_collector" {
+#  metadata {
+#    namespace = kubernetes_namespace.cloudwatch_metrics.metadata[0].name
+#    name = "adot-collector"
+#    annotations = {
+#      "eks.amazonaws.com/role-arn" = module.adot_collector.iam_role_arn
+#    }
+#  }
+#}
+
 data "aws_iam_policy_document" "app_task_table" {
   statement {
     actions   = [
@@ -133,8 +161,9 @@ resource "aws_iam_policy" "app_task_table" {
   policy = data.aws_iam_policy_document.app_task_table.json
 }
 
-data "aws_iam_policy" "otel" {
-  name = "EKSADOTCollector"
+resource "aws_iam_policy" "eks_aodt_collector" {
+  name   = "EKSADOTCollector"
+  policy = file("${path.module}/otel-collector-policy.json")
 }
 
 module "task_service" {
@@ -144,7 +173,7 @@ module "task_service" {
   role_path                     = "/app/"
   role_name                     = "TaskService"
   provider_url                  = var.oidc_provider_url
-  role_policy_arns              = concat([aws_iam_policy.app_task_table.arn], var.enable_otel ? [aws_iam_policy.app_task_table.arn] : [])
+  role_policy_arns              = concat([aws_iam_policy.app_task_table.arn], var.enable_otel ? [aws_iam_policy.eks_aodt_collector.arn] : [])
   oidc_fully_qualified_subjects = ["system:serviceaccount:${var.env}:task-service"]
 }
 

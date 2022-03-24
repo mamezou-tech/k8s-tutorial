@@ -1,2 +1,3 @@
 k8s/v3-ans/overlays/prod/lets-encrypt-issuer.yaml
+k8s/otel-ans/overlays/prod/lets-encrypt-issuer.yaml
 terraform-local

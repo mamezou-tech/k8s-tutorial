@@ -2,7 +2,7 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: task-service-monitor
-  namespace: prod
+#  namespace: prod
   labels:
     release: kube-prometheus-stack
 spec:

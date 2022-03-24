@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: task-service
+spec:
+  replicas: 3
+  template:
+    spec:
+      # IRSA
+      serviceAccountName: task-service
+      containers:
+        - name: task-service
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 300m
+              memory: 512Mi
+        - name: aws-otel-collector
+          image: amazon/aws-otel-collector:latest
+          command: [ "/awscollector" ]
+          args: [ "--config", "/config/otel-config.yaml" ]
+          volumeMounts:
+            - mountPath: /config
+              name: otel-config-vol
+              readOnly: true
+          env:
+            - name: AWS_REGION
+              value: ap-northeast-1
+          resources:
+            limits:
+              cpu: 256m
+              memory: 512Mi
+            requests:
+              cpu: 32m
+              memory: 24Mi
+      volumes:
+        - name: otel-config-vol
+          configMap:
+            name: otel-config
