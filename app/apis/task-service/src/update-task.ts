@@ -37,10 +37,7 @@ const updateTaskHandler: RequestHandler<{}, string, TaskUpdateRequest> = async (
       },
     })
     .promise();
-  logger.info(
-    "[UPDATE]success! consumed capacity:",
-    putResponse.ConsumedCapacity?.CapacityUnits
-  );
+  logger.info(`タスクを更新しました。タスクID => ${body.taskId},ユーザー => ${body.userName}`);
   res.send("ok");
 };
 

@@ -6,6 +6,7 @@ import Router from "express-promise-router";
 import expressWinston from "express-winston";
 import winston from "winston";
 import apiMetrics from 'prometheus-api-metrics';
+import logger from "./logger";
 
 const app = express();
 app.use(express.json());
@@ -16,7 +17,7 @@ app.use(expressWinston.logger({
   transports: [
     new winston.transports.Console()
   ],
-  format: winston.format.json()
+  format: winston.format.combine(winston.format.timestamp(), winston.format.json())
 }));
 
 const router = Router();
@@ -29,6 +30,7 @@ app.get("/health/liveness", (req, res) => {
   res.send("liveness OK");
 });
 app.get("/health/readiness", (req, res) => {
+  logger.info("test")
   res.send("readiness OK");
 });
 app.get("/health/startup", (req, res) => {
@@ -39,7 +41,7 @@ app.use(expressWinston.errorLogger({
   transports: [
     new winston.transports.Console()
   ],
-  format: winston.format.json()
+  format: winston.format.combine(winston.format.timestamp(), winston.format.json())
 }))
 
 const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
@@ -54,5 +56,5 @@ app.use(errorHandler);
 const port = 3000;
 const host = "0.0.0.0"
 app.listen(port, host, () => {
-  console.log(`task-service listening at http://${host}:${port}`);
+  logger.info(`task-service listening at http://${host}:${port}`);
 });

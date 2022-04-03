@@ -27,7 +27,7 @@ const listTasksHandler: RequestHandler<
       Limit: 100,
     })
     .promise();
-  logger.info("[LIST] consumed capacity:" + result.ConsumedCapacity?.CapacityUnits)
+  logger.info(`タスク一覧を取得しました。件数 => ${result.Items?.length || 0},ユーザー => ${name}`);
   const tasks: TaskResponse[] = (result.Items || []).map((item) => {
     return {
       userName: item.user_name,

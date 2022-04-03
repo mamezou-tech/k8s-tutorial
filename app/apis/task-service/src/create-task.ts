@@ -23,9 +23,7 @@ const createTaskHandler: RequestHandler<{},
       },
     })
     .promise();
-  logger.info(
-    "[CREATE]success! consumed capacity:" + response.ConsumedCapacity?.CapacityUnits
-  );
+  logger.info(`タスクを登録しました。タスクID => ${taskId}, ユーザー => ${body.userName}`);
   res.status(201);
   res.send({taskId});
 };

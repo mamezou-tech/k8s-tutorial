@@ -229,3 +229,93 @@ resource "kubernetes_service_account" "task_reporter" {
     }
   }
 }
+
+data "aws_region" "this" {}
+data "aws_caller_identity" "this" {}
+
+# OpenSearch
+resource "aws_elasticsearch_domain" "this" {
+  domain_name           = "task-tool-log"
+  elasticsearch_version = "OpenSearch_1.1"
+  ebs_options {
+    ebs_enabled = true
+    volume_type = "gp2"
+    volume_size = 30
+  }
+  node_to_node_encryption {
+    enabled = true
+  }
+  encrypt_at_rest {
+    enabled = true
+  }
+  domain_endpoint_options {
+    enforce_https = true
+    tls_security_policy = "Policy-Min-TLS-1-2-2019-07"
+  }
+  advanced_security_options {
+    enabled = true
+    internal_user_database_enabled = true
+    master_user_options {
+      master_user_name = "admin"
+      master_user_password = "MZ-pass-123"
+    }
+  }
+}
+
+resource "aws_elasticsearch_domain_policy" "this" {
+  domain_name     = aws_elasticsearch_domain.this.domain_name
+  access_policies = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect    = "Allow",
+        Principal = {
+          AWS = "*"
+        },
+        Action = "es:ESHttp*"
+        Resource = "arn:aws:es:${data.aws_region.this.name}:${data.aws_caller_identity.this.account_id}:domain/${aws_elasticsearch_domain.this.domain_name}/*"
+      }
+    ]
+  })
+}
+
+# Fluent Bit
+data "aws_iam_policy_document" "opensearch" {
+  version = "2012-10-17"
+  statement {
+    actions = ["es:ESHttp*"]
+    effect = "Allow"
+    resources = ["arn:aws:es:${data.aws_region.this.name}:${data.aws_caller_identity.this.account_id}:domain/${aws_elasticsearch_domain.this.domain_name}/*"]
+  }
+}
+
+resource "aws_iam_policy" "opensearch" {
+  name = "TaskToolOpenSearchAccess"
+  policy = data.aws_iam_policy_document.opensearch.json
+}
+
+module "fluentbit" {
+  source                        = "terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc"
+  version                       = "~> 4.0"
+  create_role                   = true
+  role_name                     = "FluentBit"
+  provider_url                  = var.oidc_provider_url
+  role_policy_arns              = [aws_iam_policy.opensearch.arn]
+  oidc_fully_qualified_subjects = ["system:serviceaccount:fluent-bit:fluent-bit"]
+}
+
+resource "kubernetes_namespace" "fluentbit" {
+  metadata {
+    name = "fluent-bit"
+  }
+}
+
+resource "kubernetes_service_account" "fluentbit" {
+  metadata {
+    namespace = "fluent-bit"
+    name = "fluent-bit"
+    annotations = {
+      "eks.amazonaws.com/role-arn" = module.fluentbit.iam_role_arn
+    }
+  }
+}
