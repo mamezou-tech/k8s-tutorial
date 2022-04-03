@@ -30,7 +30,6 @@ app.get("/health/liveness", (req, res) => {
   res.send("liveness OK");
 });
 app.get("/health/readiness", (req, res) => {
-  logger.info("test")
   res.send("readiness OK");
 });
 app.get("/health/startup", (req, res) => {
