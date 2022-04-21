@@ -1,0 +1,36 @@
+apiVersion: opentelemetry.io/v1alpha1
+kind: OpenTelemetryCollector
+metadata:
+  name: otel-web
+  namespace: tracing
+spec:
+  mode: deployment # This configuration is omittable.
+  config: |
+    receivers:
+      # https://github.com/open-telemetry/opentelemetry-collector/blob/main/receiver/otlpreceiver/README.md
+      otlp:
+        protocols:
+          http:
+            cors:
+              allowed_origins:
+                # UIリソースのドメインからのアクセスのみを許可
+                # ドメインは自身のものに置き換えてください
+                - "https://task.mamezou-tech.com"
+    processors:
+    exporters:
+      logging:
+        loglevel: debug
+      # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/exporter/jaegerexporter
+      jaeger:
+        # Jaeger CollectorのgRPCエンドポイント
+        # kubectl get svc jaeger-collector -o yaml -n tracing
+        endpoint: jaeger-collector.tracing.svc.cluster.local:14250
+        tls:
+          insecure: true
+
+    service:
+      pipelines:
+        traces:
+          receivers: [otlp]
+          processors: []
+          exporters: [logging, jaeger]

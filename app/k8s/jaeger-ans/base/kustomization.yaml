@@ -1,0 +1,17 @@
+commonLabels:
+  app.kubernetes.io/name: task-tool
+  app.kubernetes.io/created-by: mamezou-tech
+
+resources:
+  - ingress/ingress.yaml
+  - task-service/service.yaml
+  - task-service/deployment.yaml
+  - task-reporter/cronjob.yaml
+
+configMapGenerator:
+  - name: task-service-config
+    envs:
+      - task-service/.env
+  - name: task-reporter-config
+    envs:
+      - task-reporter/.env

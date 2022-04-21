@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: otel-web-collector
+  namespace: tracing
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: otel.mamezou-tech.com
+    cert-manager.io/issuer: "tracing-tls-issuer"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - otel.mamezou-tech.com
+      secretName: tracing-cert
+  rules:
+    - host: otel.mamezou-tech.com
+      http:
+        paths:
+          - backend:
+              service:
+                name: otel-web-collector
+                port:
+                  name: otlp-http
+            path: /
+            pathType: Prefix

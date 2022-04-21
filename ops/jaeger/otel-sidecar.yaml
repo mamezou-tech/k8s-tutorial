@@ -1,0 +1,27 @@
+apiVersion: opentelemetry.io/v1alpha1
+kind: OpenTelemetryCollector
+metadata:
+  name: otel-sidecar
+  namespace: prod
+spec:
+  mode: sidecar
+  config: |
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+    processors:
+    exporters:
+      logging:
+        logLevel: debug
+      jaeger:
+        # kubectl get svc jaeger-collector -o yaml -n tracing
+        endpoint: jaeger-collector.tracing.svc.cluster.local:14250
+        tls:
+          insecure: true
+    service:
+      pipelines:
+        traces:
+          receivers: [otlp]
+          processors: []
+          exporters: [logging, jaeger]

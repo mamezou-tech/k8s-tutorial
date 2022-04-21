@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: task-service
+spec:
+  replicas: 3
+  template:
+    metadata:
+      # Jaeger OperatorによるサイドカーInjection有効化
+      annotations:
+        sidecar.opentelemetry.io/inject: "true"
+    spec:
+      serviceAccountName: task-service
+      containers:
+        - name: task-service
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 300m
+              memory: 512Mi

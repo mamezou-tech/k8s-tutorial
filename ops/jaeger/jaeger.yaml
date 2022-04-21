@@ -1,0 +1,20 @@
+apiVersion: jaegertracing.io/v1
+kind: Jaeger
+metadata:
+  name: jaeger
+  namespace: tracing
+spec:
+  strategy: allInOne # default
+  storage:
+    type: memory # default
+  ingress:
+    ingressClassName: nginx
+    hosts:
+      - jaeger.mamezou-tech.com
+    tls:
+      - hosts:
+          - jaeger.mamezou-tech.com
+        secretName: jaeger-cert
+    annotations:
+      external-dns.alpha.kubernetes.io/hostname: jaeger.mamezou-tech.com
+      cert-manager.io/issuer: "tracing-tls-issuer"

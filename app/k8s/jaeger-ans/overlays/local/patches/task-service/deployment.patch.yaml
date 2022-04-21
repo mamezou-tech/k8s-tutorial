@@ -1,0 +1,14 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: task-service
+spec:
+  replicas: 2
+  template:
+    metadata:
+      annotations:
+        sidecar.opentelemetry.io/inject: "true"
+    spec:
+      containers:
+        - name: task-service
+          imagePullPolicy: Never
