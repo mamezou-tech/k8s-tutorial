@@ -8,13 +8,7 @@
         "logs:CreateLogGroup",
         "logs:CreateLogStream",
         "logs:DescribeLogStreams",
-        "logs:DescribeLogGroups",
-        "xray:PutTraceSegments",
-        "xray:PutTelemetryRecords",
-        "xray:GetSamplingRules",
-        "xray:GetSamplingTargets",
-        "xray:GetSamplingStatisticSummaries",
-        "ssm:GetParameters"
+        "logs:DescribeLogGroups"
       ],
       "Resource": "*"
     }

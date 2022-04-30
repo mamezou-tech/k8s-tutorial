@@ -9,12 +9,14 @@ import { SimpleSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { XMLHttpRequestInstrumentation } from "@opentelemetry/instrumentation-xml-http-request";
 import { Resource } from "@opentelemetry/resources";
+import { AWSXRayIdGenerator } from "@opentelemetry/id-generator-aws-xray";
 
 const provider = new WebTracerProvider({
   resource: new Resource({
     [SemanticResourceAttributes.SERVICE_NAME]: "task-web",
     [SemanticResourceAttributes.SERVICE_VERSION]: "1.0.0",
   }),
+  idGenerator: new AWSXRayIdGenerator(),
 });
 const exporter = new OTLPTraceExporter({
   url: "https://otel.mamezou-tech.com/v1/traces",

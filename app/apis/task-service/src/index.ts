@@ -30,7 +30,7 @@ registerInstrumentations({
 });
 const exporter = new OTLPTraceExporter();
 provider.addSpanProcessor(new SimpleSpanProcessor(exporter));
-['SIGINT', 'SIGTERM'].forEach(signal => {
+["SIGINT", "SIGTERM"].forEach(signal => {
   process.on(signal, () => provider.shutdown().catch(console.error));
 });
 
