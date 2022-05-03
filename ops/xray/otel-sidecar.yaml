@@ -1,0 +1,24 @@
+apiVersion: opentelemetry.io/v1alpha1
+kind: OpenTelemetryCollector
+metadata:
+  name: otel-sidecar
+  namespace: prod
+spec:
+  # ADOTのイメージを利用(X-Ray Exporterが含まれる)
+  image: public.ecr.aws/aws-observability/aws-otel-collector:v0.17.0
+  mode: sidecar
+  config: |
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+    processors:
+    exporters:
+      awsxray:
+        region: ap-northeast-1
+    service:
+      pipelines:
+        traces:
+          receivers: [otlp]
+          processors: []
+          exporters: [awsxray]

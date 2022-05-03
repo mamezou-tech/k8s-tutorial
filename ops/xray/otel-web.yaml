@@ -1,0 +1,33 @@
+apiVersion: opentelemetry.io/v1alpha1
+kind: OpenTelemetryCollector
+metadata:
+  name: otel-web
+  namespace: tracing
+spec:
+  # ADOTのイメージを利用(X-Ray Exporterが含まれる)
+  image: public.ecr.aws/aws-observability/aws-otel-collector:v0.17.0
+  mode: deployment
+  serviceAccount: otel-web-collector
+  config: |
+    receivers:
+      # https://github.com/open-telemetry/opentelemetry-collector/blob/main/receiver/otlpreceiver/README.md
+      otlp:
+        protocols:
+          http:
+            cors:
+              allowed_origins:
+                # UIリソースのドメインからのアクセスのみを許可
+                # ドメインは自身のものに置き換えてください
+                - "https://task.mamezou-tech.com"
+    processors:
+
+    exporters:
+      awsxray:
+        region: ap-northeast-1
+
+    service:
+      pipelines:
+        traces:
+          receivers: [otlp]
+          processors: []
+          exporters: [awsxray]

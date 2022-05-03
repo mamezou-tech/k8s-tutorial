@@ -1,0 +1,15 @@
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: tracing-tls-issuer
+  namespace: tracing
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: '<your-mail-address>'
+    privateKeySecretRef:
+      name: tracing-acme-client-letsencrypt
+    solvers:
+      - http01:
+          ingress:
+            class: nginx
