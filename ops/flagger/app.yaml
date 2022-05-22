@@ -1,0 +1,72 @@
+# サンプルアプリスクリプト
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: server
+data:
+  index.js: |
+    const http = require('http');
+
+    const server = http.createServer((req, res) => {
+      
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'text/plain');
+      res.end(`${process.env.POD_NAME}: hello sample app! version -> ${process.env.APP_VERSION}\n`);
+    });
+
+    const hostname = '0.0.0.0';
+    const port = 8080;
+    server.listen(port, hostname, () => {
+      console.log(`Server running at http://${hostname}:${port}/`);
+    });
+---
+# v1
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sample-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: sample-app
+  template:
+    metadata:
+      labels:
+        app: sample-app
+    spec:
+      containers:
+        - name: sample-app
+          image: node:16
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: APP_VERSION
+              value: v1
+          command: [sh, -c, "node /opt/server/index.js"]
+          volumeMounts:
+            - mountPath: /opt/server
+              name: server
+      volumes:
+        - name: server
+          configMap:
+            name: server
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: sample-app
+  name: sample-app
+spec:
+  selector:
+    app: sample-app
+  ports:
+    - targetPort: http
+      port: 80
+---

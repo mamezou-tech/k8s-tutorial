@@ -9,7 +9,7 @@ const createTaskHandler: RequestHandler<{},
   TaskCreateRequest> = async (req, res) => {
   const {body} = req;
   const taskId = uuidv4();
-  const response = await client
+  await client
     .put({
       TableName: process.env.TASK_TABLE_NAME || "tasks",
       Item: {

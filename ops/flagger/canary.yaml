@@ -1,0 +1,55 @@
+apiVersion: flagger.app/v1beta1
+kind: Canary
+metadata:
+  name: sample-app
+  namespace: test
+spec:
+  provider: nginx
+  # deployment reference
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: sample-app
+  # ingress reference
+  ingressRef:
+    apiVersion: networking.k8s.io/v1
+    kind: Ingress
+    name: sample-app
+  service:
+    port: 80
+    targetPort: 9898
+  analysis:
+    # チェック間隔
+    interval: 30s
+    # カナリアリリース失敗とみなすチェック失敗回数
+    threshold: 10
+    # カナリアバージョンへの最大ウェイト
+    maxWeight: 50
+    # カナリアバージョンへのウェイトのピッチ
+    stepWeight: 10
+    metrics:
+      - name: request-success-rate
+        interval: 3m
+        # 99%のリクエストが200系
+        thresholdRange:
+          min: 99
+      - name: request-duration
+        interval: 3m
+        # 99%値のレスポンスが1秒以下
+        thresholdRange:
+          max: 1000
+    webhooks:
+      # curlでアプリが動いていることを確認
+      - name: acceptance-test
+        type: pre-rollout
+        url: http://flagger-loadtester.test/
+        timeout: 30s
+        metadata:
+          type: bash
+          cmd: "curl -sd 'test' http://sample-app-canary/token | grep token"
+      # 2分間負荷をかける -> メトリクス収集
+      - name: load-test
+        type: rollout
+        url: http://flagger-loadtester.test/
+          # kubectl get ing sample-app -n test -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+          cmd: "hey -z 2m -q 5 -c 2 -host 'sample.minikube.local' http://10.106.126.38/"
