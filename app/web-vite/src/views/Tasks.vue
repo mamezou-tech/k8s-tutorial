@@ -74,7 +74,7 @@ export default defineComponent({
     const { fetchTasks, updateTask } = useTaskRepositories(
       userName || "unknown"
     );
-    const mode = ref<"default" | "all">("default");
+    const mode = ref<"default" | "all">("default")
     const initTasks = async () => {
       try {
         message.value = "タスク一覧を取得しています...";
@@ -94,7 +94,7 @@ export default defineComponent({
       } catch (e) {
         message.value = "タスク取得に失敗しました。";
       }
-    };
+    }
 
     // task complete
     const completeTask = async (task: Task) => {

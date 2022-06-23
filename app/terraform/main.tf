@@ -173,8 +173,8 @@ module "task_service" {
   role_path                     = "/app/"
   role_name                     = "TaskService"
   provider_url                  = var.oidc_provider_url
-#  role_policy_arns              = concat([aws_iam_policy.app_task_table.arn], var.enable_otel ? [aws_iam_policy.eks_aodt_collector.arn] : [])
-  role_policy_arns              = [aws_iam_policy.app_task_table.arn, data.aws_iam_policy.xray_write_access.arn]
+  role_policy_arns              = concat([aws_iam_policy.app_task_table.arn], var.enable_otel ? [aws_iam_policy.eks_aodt_collector.arn] : [])
+#  role_policy_arns              = [aws_iam_policy.app_task_table.arn, data.aws_iam_policy.xray_write_access.arn]
   oidc_fully_qualified_subjects = ["system:serviceaccount:${var.env}:task-service"]
 }
 
@@ -327,26 +327,26 @@ resource "kubernetes_service_account" "fluentbit" {
 }
 
 # for AWS X-Ray Manged Policy
-data "aws_iam_policy" "xray_write_access" {
-  name = "AWSXRayDaemonWriteAccess"
-}
-
-module "adot_xray_collector" {
-  source                        = "terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc"
-  version                       = "~> 4.0"
-  create_role                   = true
-  role_name                     = "ADOTXrayCollector"
-  provider_url                  = var.oidc_provider_url
-  role_policy_arns              = [data.aws_iam_policy.xray_write_access.arn]
-  oidc_fully_qualified_subjects = ["system:serviceaccount:tracing:otel-web-collector"]
-}
-
-resource "kubernetes_service_account" "otel_web_xray_collector" {
-  metadata {
-    name = "otel-web-collector"
-    namespace = "tracing"
-    annotations = {
-      "eks.amazonaws.com/role-arn" = module.adot_xray_collector.iam_role_arn
-    }
-  }
-}
+#data "aws_iam_policy" "xray_write_access" {
+#  name = "AWSXRayDaemonWriteAccess"
+#}
+#
+#module "adot_xray_collector" {
+#  source                        = "terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc"
+#  version                       = "~> 4.0"
+#  create_role                   = true
+#  role_name                     = "ADOTXrayCollector"
+#  provider_url                  = var.oidc_provider_url
+#  role_policy_arns              = [data.aws_iam_policy.xray_write_access.arn]
+#  oidc_fully_qualified_subjects = ["system:serviceaccount:tracing:otel-web-collector"]
+#}
+#
+#resource "kubernetes_service_account" "otel_web_xray_collector" {
+#  metadata {
+#    name = "otel-web-collector"
+#    namespace = "tracing"
+#    annotations = {
+#      "eks.amazonaws.com/role-arn" = module.adot_xray_collector.iam_role_arn
+#    }
+#  }
+#}
